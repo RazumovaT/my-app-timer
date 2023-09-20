@@ -1,6 +1,6 @@
-import { React, useState, useEffect } from 'react'
-import { formatDistance } from 'date-fns'
-import PropTypes from 'prop-types'
+import { React, useState, useEffect } from "react";
+import { formatDistance } from "date-fns";
+import PropTypes from "prop-types";
 
 function NewTaskForm({
   label,
@@ -16,72 +16,96 @@ function NewTaskForm({
   onItemSubmit,
   onChange,
 }) {
-  const [input, setInput] = useState(label)
+  const [input, setInput] = useState(label);
 
-  let [seconds, setSeconds] = useState(Number(sec))
-  let [minutes, setMinutes] = useState(Number(min))
-  const [play, setPlay] = useState(true)
+  let [seconds, setSeconds] = useState(sec);
+  let [minutes, setMinutes] = useState(min);
+  const [play, setPlay] = useState(true);
 
   const playInterval = () => {
-    setPlay(true)
-  }
+    setPlay(true);
+  };
   const pauseInterval = () => {
-    setPlay(false)
-  }
+    setPlay(false);
+  };
 
   useEffect(() => {
-    let interval = null
+    let interval = null;
+
     if (play) {
       interval = setInterval(() => {
-        setSeconds(seconds + 1)
-        if (seconds === 59) {
-          setSeconds(0)
-          setMinutes(minutes + 1)
+        setSeconds(seconds - 1);
+        if (seconds === 0 && minutes !== 0) {
+          setSeconds(59);
+          setMinutes(minutes - 1);
         }
-      }, 1000)
+        if (minutes === 0 && seconds === 0) {
+          clearInterval(interval);
+          setSeconds(0);
+        }
+      }, 1000);
     } else if (!play && seconds !== 0) {
-      clearInterval(interval)
+      clearInterval(interval);
     }
     return () => {
-      clearInterval(interval)
-    }
-  }, [seconds, minutes, play])
+      clearInterval(interval);
+    };
+  }, [seconds, minutes, play]);
 
   const inputChange = (e) => {
-    onChange(e.target.value)
-    setInput(e.target.value)
-  }
+    onChange(e.target.value);
+    setInput(e.target.value);
+  };
 
   const submitFunc = (e) => {
-    e.preventDefault()
-    onItemSubmit()
-  }
+    e.preventDefault();
+    onItemSubmit();
+  };
 
   if (isEdit) {
     return (
       <form onSubmit={(e) => submitFunc(e)}>
-        <input type="text" className="edit" value={input} onChange={inputChange} />
+        <input
+          type="text"
+          className="edit"
+          value={input}
+          onChange={inputChange}
+        />
       </form>
-    )
+    );
   }
 
   return (
     <label>
-      <li className={done ? 'completed' : ''} onClick={onItemDone}>
+      <li className={done ? "completed" : ""} onClick={onItemDone}>
         <div className="view">
-          <input className="toggle" type="checkbox" name="checkbox" id={id} checked={done ? true : false} readOnly />
+          <input
+            className="toggle"
+            type="checkbox"
+            name="checkbox"
+            id={id}
+            checked={done ? true : false}
+            readOnly
+          />
           <label htmlFor={id} onClick={onItemDone}>
             <span className="title">{label}</span>
             <span className="description">
-              <button className="icon icon-play" onClick={playInterval}></button>
-              <button className="icon icon-pause" onClick={pauseInterval}></button>
-              {minutes}:{seconds}
+              <button
+                className="icon icon-play"
+                onClick={playInterval}
+              ></button>
+              <button
+                className="icon icon-pause"
+                onClick={pauseInterval}
+              ></button>
+              {minutes < 10 ? "0" + minutes : minutes}:
+              {seconds < 10 ? "0" + seconds : seconds}
             </span>
             <span className="description">
-              created{' '}
+              created{" "}
               {formatDistance(createdAt, Date.now(), {
                 includeSeconds: true,
-              })}{' '}
+              })}{" "}
               ago
             </span>
           </label>
@@ -90,18 +114,18 @@ function NewTaskForm({
         </div>
       </li>
     </label>
-  )
+  );
 }
 
 NewTaskForm.defaultProps = {
-  label: '',
-  min: '',
-  sec: '',
+  label: "",
+  min: "",
+  sec: "",
   done: false,
   id: Math.random(),
   onDeleted: () => {},
   onItemDone: () => {},
-}
+};
 
 NewTaskForm.propTypes = {
   label: PropTypes.string.isRequired,
@@ -111,6 +135,6 @@ NewTaskForm.propTypes = {
   onItemDone: PropTypes.func,
   playInterval: PropTypes.func,
   pauseInterval: PropTypes.func,
-}
+};
 
-export default NewTaskForm
+export default NewTaskForm;
